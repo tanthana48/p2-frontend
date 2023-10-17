@@ -55,25 +55,46 @@ const router = new VueRouter({
   routes,
 });
 
-// Setup beforeEach hook to check the logged in sync the loggin states with backend
+//Setup beforeEach hook to check the logged in sync the loggin states with backend
 router.beforeEach(async (to, from, next) => {
-  // get login state using whomai and axios
-  let response = await Vue.axios.get("/api/whoami");
-  // response.data is our payload
-  await store.dispatch("setLoggedInUser", response.data);
-  let isLoggedIn = store.state.isLoggedIn;
-  // make sure if user is logged, user will not be able to see login page
-  if (to.name === "Login" && isLoggedIn) {
-    next({ name: "Home" });
+  const token = localStorage.getItem('userToken');
+
+  if (token) {
+    Vue.axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   }
-  // if the name of the router is not Login, it needs authorization to access the page
-  if (to.name !== "Login" && !isLoggedIn) {
-    // redirect to login page
-    next({ name: "Login" });
-  } else {
-    // otherwise, let go
-    next();
+
+  const checkTokenValidity = async () => {
+    try {
+      let response = await Vue.axios.get("/api/whoami");
+      await store.dispatch("setLoggedInUser", response.data);
+      return true;
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        localStorage.removeItem('userToken');
+        next({ name: 'Login' });
+     }     
+    }
+  };
+
+  // If the user is navigating to Login or Register page
+  if (to.name === "Login" || to.name === "Register") {
+    if (token && await checkTokenValidity()) {
+      next({ name: 'Home' });
+    } else {
+      next();
+    }
+  } 
+  // For all other routes
+  else {
+    if (!token || !(await checkTokenValidity())) {
+      next({ name: 'Login' });
+    } else {
+      next();
+    }
   }
 });
+
+
+
 
 export default router;

@@ -60,13 +60,26 @@ import Vue from "vue";
 export default {
   methods: {
     async logout() {
-      let response = await Vue.axios.get("/api/logout");
-      localStorage.removeItem("userToken");
-      if (response.data.success) {
-        await this.$router.push({ path: "/login" });
-      }
-    },
-  },
+    try {
+        const token = localStorage.getItem("userToken");
+        let response = await Vue.axios.post("/api/logout", {}, {
+            headers: {
+                "Authorization": token
+            }
+        });
+        localStorage.removeItem("userToken");
+        if (response.data.message === "Logged out successfully") {
+            await this.$router.push({ path: "/login" });
+        } else {
+            console.error("Failed to logout:", response.data.error || "Unknown error");
+        }
+    } catch (error) {
+        console.error("An error occurred during logout:", error);
+        // Optionally, you can also provide feedback to the user if needed
+    }
+}
+}
+
 };
 </script>
 
