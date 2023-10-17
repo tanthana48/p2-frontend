@@ -4,7 +4,13 @@
       <v-spacer></v-spacer>
 
       <span class="mr-4">{{ $store.state.name }}</span>
-      <v-btn href="" target="_blank" text class="px-0 rounded-circle" min-width="36">
+      <v-btn
+        href=""
+        target="_blank"
+        text
+        class="px-0 rounded-circle"
+        min-width="36"
+      >
         <v-icon>mdi-dots-vertical</v-icon>
       </v-btn>
     </v-app-bar>
@@ -49,18 +55,19 @@
 </template>
 
 <script>
-//import Vue from 'vue'
+import Vue from "vue";
 
 export default {
-  // methods: {
-  //   async logout() {
-  //     let response = await Vue.axios.get("/api/logout");
-  //     if (response.data.success) {
-  //       await this.$router.push({ path: "/login" });
-  //     }
-  //   },
-  // },
-}
+  methods: {
+    async logout() {
+      let response = await Vue.axios.get("/api/logout");
+      localStorage.removeItem("userToken");
+      if (response.data.success) {
+        await this.$router.push({ path: "/login" });
+      }
+    },
+  },
+};
 </script>
 
 <style>

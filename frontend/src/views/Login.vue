@@ -2,15 +2,9 @@
   <v-main>
     <v-container fill-height>
       <v-row align="center" justify="center">
-        <v-col
-          xs="12"
-          sm="8"
-          md="6"
-          lg="4"
-        >
+        <v-col xs="12" sm="8" md="6" lg="4">
           <v-card class="pa-6" elevation="2">
             <v-container fluid>
-
               <v-row class="mb-4">
                 <v-col>
                   <h2 class="headline text-center">Login Account</h2>
@@ -59,7 +53,9 @@
 
               <v-row class="mt-4 text-center">
                 <v-col>
-                  <v-btn text color="blue-grey lighten-1" @click="register">Register</v-btn>
+                  <v-btn text color="blue-grey lighten-1" @click="register"
+                    >Register</v-btn
+                  >
                 </v-col>
               </v-row>
             </v-container>
@@ -70,40 +66,52 @@
   </v-main>
 </template>
 <script>
-//import Vue from 'vue'
+import Vue from "vue";
 
 export default {
   data: () => ({
     valid: true,
-    username: 'admin',
-    password: '123456',
-    usernameRules: [(v) => !!v || 'Username is required'],
-    passwordRules: [(v) => !!v || 'Password is required']
+    username: "admin",
+    password: "123456",
+    usernameRules: [(v) => !!v || "Username is required"],
+    passwordRules: [(v) => !!v || "Password is required"],
   }),
 
   methods: {
     //
     async register() {
-
-      await this.$router.push({ path: '/register'})
-      
+      await this.$router.push({ path: "/register" });
     },
     async submit() {
-      // Mock response
-      let response = {
-        data: {
-          success: true
+      if (this.$refs.form.validate()) {
+        // submit to backend to authenticate
+        let loginData = {
+          username: this.username,
+          password: this.password,
+        };
+
+        try {
+          let response = await Vue.axios.post("/api/login", loginData);
+          if (response.data.token) {
+            // check if token is present in response
+            // Store token in localStorage
+            localStorage.setItem("userToken", response.data.token);
+            await this.$router.push({ path: "/" });
+          } else if (response.data.error) {
+            console.error(`Server error: ${response.data.error}`);
+            alert(response.data.error);
+          }
+        } catch (error) {
+          console.error(`Network or server error: ${error}`);
+          alert(
+            "There was an issue connecting to the server. Please try again later.",
+          );
         }
       }
-
-      if (response.data.success) {
-        await this.$router.push({ path: '/' })
-      }
     },
-
     reset() {
-      this.$refs.form.reset()
-    }
-  }
-}
+      this.$refs.form.reset();
+    },
+  },
+};
 </script>
