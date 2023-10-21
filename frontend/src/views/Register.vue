@@ -70,9 +70,10 @@
                   <v-col>
                     <v-btn
                       :disabled="!valid"
-                      color="primary"
+                      color="#212121"
                       block
                       @click="register()"
+                      class="white--text"
                     >
                       Register
                     </v-btn>
@@ -82,9 +83,9 @@
 
               <v-row class="mt-4 text-center">
                 <v-col>
-                  <span class="caption">
+                  <span class="text-subtitle-2">
                     Already have an account?
-                    <router-link to="/login">Login</router-link>
+                    <router-link class="red--text" to="/login">Login</router-link>
                   </span>
                 </v-col>
               </v-row>
