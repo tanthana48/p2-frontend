@@ -1,27 +1,37 @@
 <template>
   <v-app>
-    <v-app-bar app color="teal darken-3" dark>
+    <v-app-bar app color="#2C2C2C">
       <v-spacer></v-spacer>
+      <span class="mr-4 white--text">
+        <v-icon class="white--text">
+          mdi mdi-account
+        </v-icon>
+        {{ $store.state.username }}</span>
+      
+      <v-btn text color="white" @click="uploadAction">
+      <v-icon left>mdi-upload</v-icon>
+      Upload
+      </v-btn>
 
-      <span class="mr-4">{{ $store.state.name }}</span>
       <v-btn
-        href=""
-        target="_blank"
         text
-        class="px-0 rounded-circle"
-        min-width="36"
+        color="error"
+        @click="logout"
       >
-        <v-icon>mdi-dots-vertical</v-icon>
+      <v-icon>
+        mdi mdi-logout
+      </v-icon>
+        Logout
       </v-btn>
     </v-app-bar>
-    <v-navigation-drawer class="teal darken-4" dark app>
+    <v-navigation-drawer class="#212121" dark app width="180">
       <v-list>
-        <v-list-item class="pl-2">
+        <v-list-item class="pl-1">
           <v-list-item-icon class="ml-0 my-2 mr-3">
-            <v-icon x-large>mdi-cloud-circle</v-icon>
+            <v-icon x-large>mdi mdi-music-box-outline</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>UMS</v-list-item-title>
+            <v-list-item-title>TIKTOK</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
         <v-list-item to="/">
@@ -32,21 +42,15 @@
             <v-list-item-title>Home</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item to="about">
+        <v-list-item to="upload">
           <v-list-item-icon>
-            <v-icon>mdi-information-outline</v-icon>
+            <v-icon>mdi-upload</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>About</v-list-item-title>
+            <v-list-item-title>Upload</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </v-list>
-
-      <template v-slot:append>
-        <div class="pa-2">
-          <v-btn block @click="logout"> Logout </v-btn>
-        </div>
-      </template>
     </v-navigation-drawer>
     <v-main>
       <router-view></router-view>
@@ -59,6 +63,9 @@ import Vue from "vue";
 
 export default {
   methods: {
+    async uploadAction(){
+      await this.$router.push({ path:"/upload"});
+    },
     async logout() {
     try {
         const token = localStorage.getItem("userToken");
@@ -75,7 +82,6 @@ export default {
         }
     } catch (error) {
         console.error("An error occurred during logout:", error);
-        // Optionally, you can also provide feedback to the user if needed
     }
 }
 }

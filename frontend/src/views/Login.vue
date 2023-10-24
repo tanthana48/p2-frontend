@@ -8,7 +8,7 @@
               <v-container fluid>
                 <v-row class="mb-4">
                   <v-col>
-                    <h2 class="headline text-center">Login Account</h2>
+                    <h2 class="headline font-weight-black text-center text-uppercase">Login</h2>
                   </v-col>
                 </v-row>
 
@@ -43,20 +43,23 @@
                   <v-col>
                     <v-btn
                       :disabled="!valid"
-                      color="primary"
+                      color="#212121"
                       block
                       @click="submit"
+                      class="white--text"
                     >
                       Login
                     </v-btn>
                   </v-col>
                 </v-row>
 
-                <v-row class="mt-4 text-center">
+                <v-row class="mt-5 text-center">
                   <v-col>
-                    <v-btn text color="blue-grey lighten-1" @click="register"
-                      >Register</v-btn
-                    >
+                    <span class="text-subtitle-2
+">
+                    Don't have an account?
+                    <router-link class="red--text" to="/register">Signup</router-link>
+                  </span>
                   </v-col>
                 </v-row>
               </v-container>
