@@ -113,15 +113,14 @@ export default {
       });
     },
     async getPresignedUrl(newFileName) {
-      // Request the backend for a pre-signed URL
-      const response = await Vue.axios.post('/api/get-presigned-url', {
-        fileName: newFileName,
-        fileType: this.videoFile.type,
-        title: this.videoTitle,
-        description: this.videoDescription,
-        username: this.$store.state.username
-      });
-      return response.data.presigned_url;
+        const response = await Vue.axios.post('/api/get-presigned-url', {
+            fileName: newFileName,
+            fileType: this.videoFile.type,
+            title: this.videoTitle,
+            description: this.videoDescription,
+            username: this.$store.state.username
+        });
+        return response.data.presigned_url;
     },
     async uploadVideo() {
       if (!this.videoFile) {
@@ -136,22 +135,27 @@ export default {
       try {
       await this.checkVideoDuration(this.videoFile);
       const uniqueFilename = this.generateUniqueFilename(this.$store.state.username, this.videoFile.name);
-      const presignedUrl = await this.getPresignedUrl(uniqueFilename);
-      console.log(`Uploading video with Content-Type: ${this.videoFile.type}`);
 
+      const presignedUrl = await this.getPresignedUrl(uniqueFilename);
+      delete Vue.axios.defaults.headers.common['Authorization'];
       await Vue.axios.put(presignedUrl, this.videoFile, {
         headers: {
           'Content-Type': this.videoFile.type
         }
       });
-      
-      const status = await Vue.axios.post('/api/confirm-upload', {
+
+      const token = localStorage.getItem('userToken');
+      if (token) {
+        Vue.axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await Vue.axios.post('/api/confirm-upload', {
         s3_filename: uniqueFilename,
         title: this.videoTitle,
         description: this.videoDescription,
         username: this.$store.state.username
       });
-        this.uploadStatus = status;
+        this.uploadStatus = response.data.message;
         this.statusType = 'success';
       } catch (error) {
         this.uploadStatus = 'Error: ' + (error.response && error.response.data.error ? error.response.data.error : error.message);
