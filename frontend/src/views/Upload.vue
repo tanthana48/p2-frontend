@@ -85,6 +85,44 @@ export default {
     cancelUpload() {
       this.$router.push({ path: "/" });
     },
+    generateUniqueFilename(username, originalFilename) {
+      const timestamp = Date.now();
+      const fileExtension = originalFilename.split('.').pop(); // get the file extension
+      return `${username}_${timestamp}.${fileExtension}`;
+    },
+    checkVideoDuration(file) {
+      return new Promise((resolve, reject) => {
+        const videoElement = document.createElement('video');
+        videoElement.preload = 'metadata';
+        
+        videoElement.onloadedmetadata = function() {
+          window.URL.revokeObjectURL(videoElement.src);
+          const duration = videoElement.duration;
+          if (duration > 60) {
+            reject('Video is too long (max: 1 minute)');
+          } else {
+            resolve();
+          }
+        };
+        
+        videoElement.onerror = function() {
+          reject('Error loading video file');
+        };
+        
+        videoElement.src = URL.createObjectURL(file);
+      });
+    },
+    async getPresignedUrl(newFileName) {
+      // Request the backend for a pre-signed URL
+      const response = await Vue.axios.post('/api/get-presigned-url', {
+        fileName: newFileName,
+        fileType: this.videoFile.type,
+        title: this.videoTitle,
+        description: this.videoDescription,
+        username: this.$store.state.username
+      });
+      return response.data.presigned_url;
+    },
     async uploadVideo() {
       if (!this.videoFile) {
         this.uploadStatus = 'Please select a video to upload.';
@@ -95,15 +133,25 @@ export default {
       this.isLoading = true;
       this.isUploading = true;
 
-      let formData = new FormData();
-      formData.append('video', this.videoFile);
-      formData.append('title', this.videoTitle);
-      formData.append('description', this.videoDescription);
-      formData.append('username', this.$store.state.username);
-
       try {
-        let response = await Vue.axios.post('/api/upload', formData);
-        this.uploadStatus = 'Video uploaded successfully! Pre-signed URL: ' + response.data.presigned_url;
+      await this.checkVideoDuration(this.videoFile);
+      const uniqueFilename = this.generateUniqueFilename(this.$store.state.username, this.videoFile.name);
+      const presignedUrl = await this.getPresignedUrl(uniqueFilename);
+      console.log(`Uploading video with Content-Type: ${this.videoFile.type}`);
+
+      await Vue.axios.put(presignedUrl, this.videoFile, {
+        headers: {
+          'Content-Type': this.videoFile.type
+        }
+      });
+      
+      const status = await Vue.axios.post('/api/confirm-upload', {
+        s3_filename: uniqueFilename,
+        title: this.videoTitle,
+        description: this.videoDescription,
+        username: this.$store.state.username
+      });
+        this.uploadStatus = status;
         this.statusType = 'success';
       } catch (error) {
         this.uploadStatus = 'Error: ' + (error.response && error.response.data.error ? error.response.data.error : error.message);
