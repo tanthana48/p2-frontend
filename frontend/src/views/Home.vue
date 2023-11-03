@@ -1,9 +1,11 @@
 <template>
   <v-container class="text-center">
     <!-- Video Player -->
-    <div class="my-5">
-      <video ref="videoPlayer" class="video-js vjs-default-skin mx-auto" controls preload="auto" width="640" height="360"></video>
-    </div>
+    <!-- Video Player -->
+<div class="my-5" v-if="showPlayer"> <!-- Added v-if here -->
+  <video ref="videoPlayer" class="video-js vjs-default-skin mx-auto" controls preload="auto" width="640" height="360"></video>
+</div>
+
 
     <!-- Video Thumbnails List -->
     <div class="my-3" v-for="video in videos" :key="video.id" @click="loadVideo(video.hls_filename, video.id)">
@@ -40,7 +42,8 @@ export default {
     return {
       videos: [],
       selectedVideo: null,
-      player: null
+      player: null,
+      showPlayer: false 
     };
   },
   mounted() {
@@ -81,6 +84,7 @@ export default {
     },
     async loadVideo(hlsFilename, videoId) {
       try {
+        this.showPlayer = true;
         const response = await Vue.axios.post("/api/get-presigned-m3u8", { hls_filename: hlsFilename });
         const m3u8Content = response.data.m3u8_content;
 
