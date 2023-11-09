@@ -12,6 +12,11 @@
         Upload
       </v-btn>
 
+      <v-btn text color="white" @click="myVideo">
+        <v-icon left>mdi mdi-video</v-icon>
+        My Videos
+      </v-btn>
+
       <v-btn text color="error" @click="logout">
         <v-icon> mdi mdi-logout </v-icon>
         Logout
@@ -43,6 +48,14 @@
             <v-list-item-title>Upload</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
+        <v-list-item to="video">
+          <v-list-item-icon>
+            <v-icon>mdi mdi-video</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>My Video</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
       </v-list>
     </v-navigation-drawer>
     <v-main>
@@ -58,6 +71,9 @@ export default {
   methods: {
     async uploadAction() {
       await this.$router.push({ path: "/upload" });
+    },
+    async myVideo() {
+      await this.$router.push({ path: "/video" });
     },
     async logout() {
       try {
