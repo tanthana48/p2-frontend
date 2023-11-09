@@ -1,5 +1,5 @@
 import io from "socket.io-client";
-const socketUrl = "ws://myapp.example.com:80";
+const socketUrl = "wss://myapp.example.com";
 const socket = io(socketUrl);
 
 export default socket;
