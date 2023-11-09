@@ -45,7 +45,9 @@ export default {
     async fetchVideos() {
       this.loading = true;
       try {
-        const response = await Vue.axios.get(`/api/myvideos/${this.$store.state.username}`);
+        const response = await Vue.axios.get(
+          `/api/myvideos/${this.$store.state.username}`
+        );
         this.videos = response.data.videos;
       } catch (err) {
         this.error = err.message;
@@ -56,7 +58,7 @@ export default {
     async deleteVideo(videoId) {
       try {
         await Vue.axios.delete(`/api/delete-video/${videoId}`);
-        this.error = 'Video has been deleted'
+        this.error = "Video has been deleted";
         this.fetchVideos();
       } catch (err) {
         this.error = err.message;
