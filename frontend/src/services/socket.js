@@ -1,6 +1,12 @@
 import io from "socket.io-client";
-const socketUrl = "wss://myapp.example.com";
-const socket = io(socketUrl);
+
+const socketUrl = "http://localhost:80";
+
+const socket = io(socketUrl, {
+  path: '/socket.io',
+  transports: ['websocket']
+});
+
 
 export default socket;
 
