@@ -91,7 +91,6 @@ export default {
     },
     async generateThumbnailURL(filename) {
       try {
-        console.log(filename)
         const response = await Vue.axios.post(
           "/api/get-presigned-url-thumbnail",
           { thumbnail_filename: filename }

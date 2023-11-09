@@ -55,7 +55,8 @@ export default {
     },
     async deleteVideo(videoId) {
       try {
-        await this.$http.delete(`/api/videos/${videoId}`);
+        await Vue.axios.delete(`/api/delete-video/${videoId}`);
+        this.error = 'Video has been deleted'
         this.fetchVideos();
       } catch (err) {
         this.error = err.message;
