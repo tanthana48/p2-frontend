@@ -1,9 +1,6 @@
 <template>
   <v-container class="text-center">
-    <!-- Video Player -->
-    <!-- Video Player -->
     <div class="my-5" v-if="showPlayer">
-      <!-- Added v-if here -->
       <video
         ref="videoPlayer"
         class="video-js vjs-default-skin mx-auto"
@@ -14,7 +11,6 @@
       ></video>
     </div>
 
-    <!-- Video Thumbnails List -->
     <div
       class="my-3"
       v-for="video in videos"
@@ -23,7 +19,6 @@
     >
       <img :src="video.presignedThumbnailURL" width="480" height="270" />
 
-      <!-- Vuetify v-card for video information -->
       <v-card class="mx-auto my-3" max-width="500">
         <v-card-title>
           <span class="headline">{{ video.title }}</span>
@@ -46,6 +41,7 @@
 import Vue from "vue";
 import videojs from "video.js";
 import "video.js/dist/video-js.css";
+import socket, { emitEvent, setupSocketListeners } from '@/views/socket.js';
 
 export default {
   name: "VideoList",
@@ -59,6 +55,7 @@ export default {
   },
   mounted() {
     this.fetchVideos();
+    this.setupSocket();
   },
   beforeDestroy() {
     if (this.player) {
@@ -66,6 +63,33 @@ export default {
     }
   },
   methods: {
+    setupSocket() {
+    setupSocketListeners(
+      this.handleMessage,
+      this.handleConnect,
+      this.handleDisconnect,
+      this.handleError
+    );
+  },handleMessage(message) {
+    if (message.type === 'viewCountUpdated') {
+      const video = this.videos.find(v => v.id === message.videoId);
+      if (video) {
+        video.views = message.viewCount;
+      }
+    }
+  },
+
+  handleConnect() {
+    console.log('Socket connected');
+  },
+
+  handleDisconnect() {
+    console.log('Socket disconnected');
+  },
+
+  handleError(error) {
+    console.error('Socket error:', error);
+  },
     async fetchVideos() {
       try {
         const response = await Vue.axios.get("/api/videos");
@@ -121,6 +145,7 @@ export default {
           this.player.play();
         }
         await this.incrementViews(videoId);
+        emitEvent('update-view-count', videoId);
       } catch (error) {
         console.error("Error fetching the m3u8 content:", error);
       }
