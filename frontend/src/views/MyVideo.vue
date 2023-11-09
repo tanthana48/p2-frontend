@@ -46,7 +46,7 @@ export default {
       this.loading = true;
       try {
         const response = await Vue.axios.post("/api/myvideos", {
-          username: $store.state.username,
+          username: this.$store.state.username,
         });
         this.videos = response.data.videos;
       } catch (err) {
