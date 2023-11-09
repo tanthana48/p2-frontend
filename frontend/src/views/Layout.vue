@@ -3,24 +3,17 @@
     <v-app-bar app color="#2C2C2C">
       <v-spacer></v-spacer>
       <span class="mr-4 white--text">
-        <v-icon class="white--text">
-          mdi mdi-account
-        </v-icon>
-        {{ $store.state.username }}</span>
-      
+        <v-icon class="white--text"> mdi mdi-account </v-icon>
+        {{ $store.state.username }}</span
+      >
+
       <v-btn text color="white" @click="uploadAction">
-      <v-icon left>mdi-upload</v-icon>
-      Upload
+        <v-icon left>mdi-upload</v-icon>
+        Upload
       </v-btn>
 
-      <v-btn
-        text
-        color="error"
-        @click="logout"
-      >
-      <v-icon>
-        mdi mdi-logout
-      </v-icon>
+      <v-btn text color="error" @click="logout">
+        <v-icon> mdi mdi-logout </v-icon>
         Logout
       </v-btn>
     </v-app-bar>
@@ -63,29 +56,35 @@ import Vue from "vue";
 
 export default {
   methods: {
-    async uploadAction(){
-      await this.$router.push({ path:"/upload"});
+    async uploadAction() {
+      await this.$router.push({ path: "/upload" });
     },
     async logout() {
-    try {
+      try {
         const token = localStorage.getItem("userToken");
-        let response = await Vue.axios.post("/api/logout", {}, {
+        let response = await Vue.axios.post(
+          "/api/logout",
+          {},
+          {
             headers: {
-                "Authorization": token
-            }
-        });
+              Authorization: token,
+            },
+          }
+        );
         localStorage.removeItem("userToken");
         if (response.data.message === "Logged out successfully") {
-            await this.$router.push({ path: "/login" });
+          await this.$router.push({ path: "/login" });
         } else {
-            console.error("Failed to logout:", response.data.error || "Unknown error");
+          console.error(
+            "Failed to logout:",
+            response.data.error || "Unknown error"
+          );
         }
-    } catch (error) {
+      } catch (error) {
         console.error("An error occurred during logout:", error);
-    }
-}
-}
-
+      }
+    },
+  },
 };
 </script>
 
