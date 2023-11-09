@@ -1,5 +1,5 @@
 import io from "socket.io-client";
-const socketUrl = process.env.VUE_APP_SOCKET_IO_URL || "ws://localhost:8080";
+const socketUrl = "ws://myapp.example.com";
 const socket = io(socketUrl);
 
 export default socket;
