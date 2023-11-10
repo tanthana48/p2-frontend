@@ -4,7 +4,7 @@ const socketUrl = "ws://localhost:80";
 
 const socket = io(socketUrl, {
   path: '/socket.io',
-  transports: ['websocket']
+  transports: ['websocket', 'polling']
 });
 
 
