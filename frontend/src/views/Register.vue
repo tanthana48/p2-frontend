@@ -58,7 +58,10 @@
                       type="password"
                       v-model="confirmPassword"
                       label="Confirm Password"
-                      :rules="[...confirmPasswordRules, passwordConfirmationRule]"
+                      :rules="[
+                        ...confirmPasswordRules,
+                        passwordConfirmationRule,
+                      ]"
                       required
                       solo
                       outlined
@@ -85,7 +88,9 @@
                 <v-col>
                   <span class="text-subtitle-2">
                     Already have an account?
-                    <router-link class="red--text" to="/login">Login</router-link>
+                    <router-link class="red--text" to="/login"
+                      >Login</router-link
+                    >
                   </span>
                 </v-col>
               </v-row>
@@ -96,7 +101,6 @@
     </v-container>
   </v-main>
 </template>
-
 
 <script>
 import Vue from "vue";
@@ -114,9 +118,7 @@ export default {
     ],
     usernameRules: [(v) => !!v || "Username is required"],
     passwordRules: [(v) => !!v || "Password is required"],
-    confirmPasswordRules: [
-      (v) => !!v || "Confirm Password is required",
-    ],
+    confirmPasswordRules: [(v) => !!v || "Confirm Password is required"],
   }),
 
   computed: {
@@ -128,41 +130,42 @@ export default {
   methods: {
     async register() {
       if (this.$refs.form.validate()) {
-          const userData = {
-              username: this.username,
-              email: this.email,
-              password: this.password,
-          };
+        const userData = {
+          username: this.username,
+          email: this.email,
+          password: this.password,
+        };
 
-          try {
-              let response = await Vue.axios.post("/api/register", userData, {
-                  headers: {
-                      "Content-Type": "application/json",
-                  },
-              });
+        try {
+          let response = await Vue.axios.post("/api/register", userData, {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
 
-              // Check if response contains a token
-              if (response.data && response.data.token) {
-                  localStorage.setItem("userToken", response.data.token);
-                  this.alertSuccess("Registration successful!");
-                  this.$router.push({ path: "/" });
-              } else if (response.data && response.data.error) {
-                  // Check for specific error messages
-                  if (response.data.error === "Username is already taken") {
-                      this.alertError("Username is already taken. Please choose another one.");
-                  } else {
-                      this.alertError("Registration failed. " + response.data.error);
-                  }
-              } else {
-                  this.alertError("Registration failed. No token received.");
-              }
-          } catch (error) {
-              console.error("An error occurred during registration:", error);
-              this.alertError("Registration failed due to an error.");
+          // Check if response contains a token
+          if (response.data && response.data.token) {
+            localStorage.setItem("userToken", response.data.token);
+            this.alertSuccess("Registration successful!");
+            this.$router.push({ path: "/" });
+          } else if (response.data && response.data.error) {
+            // Check for specific error messages
+            if (response.data.error === "Username is already taken") {
+              this.alertError(
+                "Username is already taken. Please choose another one."
+              );
+            } else {
+              this.alertError("Registration failed. " + response.data.error);
+            }
+          } else {
+            this.alertError("Registration failed. No token received.");
           }
+        } catch (error) {
+          console.error("An error occurred during registration:", error);
+          this.alertError("Registration failed due to an error.");
+        }
       }
-  },
-
+    },
 
     alertError(message) {
       alert(message);
@@ -173,5 +176,4 @@ export default {
     },
   },
 };
-
 </script>

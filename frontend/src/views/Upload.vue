@@ -4,14 +4,9 @@
       <v-row justify="center">
         <v-col cols="12" md="6">
           <v-card class="pa-4" outlined>
-            <v-card-title class="text-center">
-              Upload Video
-            </v-card-title>
+            <v-card-title class="text-center"> Upload Video </v-card-title>
 
-            <v-text-field
-              label="Title"
-              v-model="videoTitle"
-            ></v-text-field>
+            <v-text-field label="Title" v-model="videoTitle"></v-text-field>
 
             <v-textarea
               label="Description"
@@ -21,8 +16,18 @@
             ></v-textarea>
 
             <div class="mb-2">
-              <v-btn @click="triggerFileInput" color="#212121" class="white--text">Choose video</v-btn>
-              <input type="file" ref="videoInput" @change="handleVideoSelect" style="display: none;" />
+              <v-btn
+                @click="triggerFileInput"
+                color="#212121"
+                class="white--text"
+                >Choose video</v-btn
+              >
+              <input
+                type="file"
+                ref="videoInput"
+                @change="handleVideoSelect"
+                style="display: none"
+              />
               <div v-if="videoFile">{{ videoFile.name }}</div>
             </div>
 
@@ -34,11 +39,12 @@
 
             <v-row class="mt-3">
               <v-col cols="12" md="6">
-                <v-btn 
-                  @click="uploadVideo" 
-                  block 
-                  color="primary" 
-                  :disabled="isUploading">
+                <v-btn
+                  @click="uploadVideo"
+                  block
+                  color="primary"
+                  :disabled="isUploading"
+                >
                   Upload
                 </v-btn>
               </v-col>
@@ -46,7 +52,6 @@
                 <v-btn @click="cancelUpload" block color="error">Cancel</v-btn>
               </v-col>
             </v-row>
-
 
             <!-- Upload Status Message -->
             <v-alert v-if="uploadStatus" :type="statusType" class="mt-3">
@@ -59,20 +64,19 @@
   </div>
 </template>
 
-
 <script>
 import Vue from "vue";
 export default {
   data() {
     return {
       videoFile: null,
-      videoTitle: '',
-      videoDescription: '',
-      uploadStatus: '',
-      statusType: '',
+      videoTitle: "",
+      videoDescription: "",
+      uploadStatus: "",
+      statusType: "",
       isLoading: false,
       progress: 0,
-      isUploading: false
+      isUploading: false,
     };
   },
   methods: {
@@ -87,45 +91,45 @@ export default {
     },
     generateUniqueFilename(username, originalFilename) {
       const timestamp = Date.now();
-      const fileExtension = originalFilename.split('.').pop(); // get the file extension
+      const fileExtension = originalFilename.split(".").pop(); // get the file extension
       return `${username}_${timestamp}.${fileExtension}`;
     },
     checkVideoDuration(file) {
       return new Promise((resolve, reject) => {
-        const videoElement = document.createElement('video');
-        videoElement.preload = 'metadata';
-        
-        videoElement.onloadedmetadata = function() {
+        const videoElement = document.createElement("video");
+        videoElement.preload = "metadata";
+
+        videoElement.onloadedmetadata = function () {
           window.URL.revokeObjectURL(videoElement.src);
           const duration = videoElement.duration;
           if (duration > 60) {
-            reject('Video is too long (max: 1 minute)');
+            reject("Video is too long (max: 1 minute)");
           } else {
             resolve();
           }
         };
-        
-        videoElement.onerror = function() {
-          reject('Error loading video file');
+
+        videoElement.onerror = function () {
+          reject("Error loading video file");
         };
-        
+
         videoElement.src = URL.createObjectURL(file);
       });
     },
     async getPresignedUrl(newFileName) {
-        const response = await Vue.axios.post('/api/get-presigned-url', {
-            fileName: newFileName,
-            fileType: this.videoFile.type,
-            title: this.videoTitle,
-            description: this.videoDescription,
-            username: this.$store.state.username
-        });
-        return response.data.presigned_url;
+      const response = await Vue.axios.post("/api/get-presigned-url", {
+        fileName: newFileName,
+        fileType: this.videoFile.type,
+        title: this.videoTitle,
+        description: this.videoDescription,
+        username: this.$store.state.username,
+      });
+      return response.data.presigned_url;
     },
     async uploadVideo() {
       if (!this.videoFile) {
-        this.uploadStatus = 'Please select a video to upload.';
-        this.statusType = 'error';
+        this.uploadStatus = "Please select a video to upload.";
+        this.statusType = "error";
         return;
       }
 
@@ -133,38 +137,47 @@ export default {
       this.isUploading = true;
 
       try {
-      await this.checkVideoDuration(this.videoFile);
-      const uniqueFilename = this.generateUniqueFilename(this.$store.state.username, this.videoFile.name);
+        await this.checkVideoDuration(this.videoFile);
+        const uniqueFilename = this.generateUniqueFilename(
+          this.$store.state.username,
+          this.videoFile.name
+        );
 
-      const presignedUrl = await this.getPresignedUrl(uniqueFilename);
-      delete Vue.axios.defaults.headers.common['Authorization'];
-      await Vue.axios.put(presignedUrl, this.videoFile, {
-        headers: {
-          'Content-Type': this.videoFile.type
+        const presignedUrl = await this.getPresignedUrl(uniqueFilename);
+        delete Vue.axios.defaults.headers.common["Authorization"];
+        await Vue.axios.put(presignedUrl, this.videoFile, {
+          headers: {
+            "Content-Type": this.videoFile.type,
+          },
+        });
+
+        const token = localStorage.getItem("userToken");
+        if (token) {
+          Vue.axios.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${token}`;
         }
-      });
 
-      const token = localStorage.getItem('userToken');
-      if (token) {
-        Vue.axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      }
-
-      const response = await Vue.axios.post('/api/confirm-upload', {
-        s3_filename: uniqueFilename,
-        title: this.videoTitle,
-        description: this.videoDescription,
-        username: this.$store.state.username
-      });
+        const response = await Vue.axios.post("/api/confirm-upload", {
+          s3_filename: uniqueFilename,
+          title: this.videoTitle,
+          description: this.videoDescription,
+          username: this.$store.state.username,
+        });
         this.uploadStatus = response.data.message;
-        this.statusType = 'success';
+        this.statusType = "success";
       } catch (error) {
-        this.uploadStatus = 'Error: ' + (error.response && error.response.data.error ? error.response.data.error : error.message);
-        this.statusType = 'error';
+        this.uploadStatus =
+          "Error: " +
+          (error.response && error.response.data.error
+            ? error.response.data.error
+            : error.message);
+        this.statusType = "error";
       } finally {
         this.isLoading = false;
         this.isUploading = false;
       }
-    }
-  }
+    },
+  },
 };
 </script>

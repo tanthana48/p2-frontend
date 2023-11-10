@@ -8,7 +8,11 @@
               <v-container fluid>
                 <v-row class="mb-4">
                   <v-col>
-                    <h2 class="headline font-weight-black text-center text-uppercase">Login</h2>
+                    <h2
+                      class="headline font-weight-black text-center text-uppercase"
+                    >
+                      Login
+                    </h2>
                   </v-col>
                 </v-row>
 
@@ -55,11 +59,12 @@
 
                 <v-row class="mt-5 text-center">
                   <v-col>
-                    <span class="text-subtitle-2
-">
-                    Don't have an account?
-                    <router-link class="red--text" to="/register">Signup</router-link>
-                  </span>
+                    <span class="text-subtitle-2">
+                      Don't have an account?
+                      <router-link class="red--text" to="/register"
+                        >Signup</router-link
+                      >
+                    </span>
                   </v-col>
                 </v-row>
               </v-container>
@@ -82,13 +87,15 @@ export default {
   }),
   computed: {
     valid() {
-      return this.usernameRules.every((rule) => rule(this.username)) && 
-            this.passwordRules.every((rule) => rule(this.password));
-    }
+      return (
+        this.usernameRules.every((rule) => rule(this.username)) &&
+        this.passwordRules.every((rule) => rule(this.password))
+      );
+    },
   },
   methods: {
     async register() {
-      console.log('Register button clicked');
+      console.log("Register button clicked");
       await this.$router.push({ path: "/register" });
     },
     async submit() {
