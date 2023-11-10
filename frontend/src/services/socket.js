@@ -1,6 +1,6 @@
 import io from "socket.io-client";
 
-const socketUrl = "ws://localhost:80";
+const socketUrl = "ws://localhost:8080";
 
 const socket = io(socketUrl, {
   path: '/socket.io',
