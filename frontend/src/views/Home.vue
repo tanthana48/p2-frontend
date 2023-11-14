@@ -54,7 +54,7 @@ export default {
   },
   mounted() {
     this.fetchVideos();
-    this.setupSocket();
+    this.startPolling();
   },
   beforeDestroy() {
     if (this.player) {
@@ -62,6 +62,11 @@ export default {
     }
   },
   methods: {
+    startPolling() {
+      setInterval(() => {
+        this.fetchVideos();
+      }, 10000);
+    },
     async fetchVideos() {
       try {
         const response = await Vue.axios.get("/api/videos");
@@ -80,7 +85,15 @@ export default {
     },
     async incrementViews(videoId) {
       try {
-        await Vue.axios.post("/api/increment-views", { video_id: videoId });
+        const response = await Vue.axios.post("/api/increment-views", {
+          video_id: videoId,
+        });
+        if (response.data.success) {
+          const video = this.videos.find((v) => v.id === videoId);
+          if (video) {
+            video.views = response.data.views;
+          }
+        }
       } catch (error) {
         console.error("Error incrementing views:", error);
       }
