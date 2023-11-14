@@ -41,7 +41,6 @@
 import Vue from "vue";
 import videojs from "video.js";
 import "video.js/dist/video-js.css";
-import { emitEvent, setupSocketListeners } from "@/services/socket.js";
 
 export default {
   name: "VideoList",
@@ -63,34 +62,6 @@ export default {
     }
   },
   methods: {
-    setupSocket() {
-      setupSocketListeners(
-        this.handleMessage,
-        this.handleConnect,
-        this.handleDisconnect,
-        this.handleError
-      );
-    },
-    handleMessage(message) {
-      if (message.type === "viewCountUpdated") {
-        const video = this.videos.find((v) => v.id === message.videoId);
-        if (video) {
-          video.views = message.viewCount;
-        }
-      }
-    },
-
-    handleConnect() {
-      console.log("Socket connected");
-    },
-
-    handleDisconnect() {
-      console.log("Socket disconnected");
-    },
-
-    handleError(error) {
-      console.error("Socket error:", error);
-    },
     async fetchVideos() {
       try {
         const response = await Vue.axios.get("/api/videos");
@@ -146,7 +117,6 @@ export default {
           this.player.play();
         }
         await this.incrementViews(videoId);
-        emitEvent("update-view-count", videoId);
       } catch (error) {
         console.error("Error fetching the m3u8 content:", error);
       }
