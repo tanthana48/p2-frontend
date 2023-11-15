@@ -41,7 +41,6 @@
 import Vue from "vue";
 import videojs from "video.js";
 import "video.js/dist/video-js.css";
-import { emitEvent, setupSocketListeners } from "@/services/socket.js";
 
 export default {
   name: "VideoList",
@@ -55,7 +54,7 @@ export default {
   },
   mounted() {
     this.fetchVideos();
-    this.setupSocket();
+    this.startPolling();
   },
   beforeDestroy() {
     if (this.player) {
@@ -63,33 +62,10 @@ export default {
     }
   },
   methods: {
-    setupSocket() {
-      setupSocketListeners(
-        this.handleMessage,
-        this.handleConnect,
-        this.handleDisconnect,
-        this.handleError
-      );
-    },
-    handleMessage(message) {
-      if (message.type === "viewCountUpdated") {
-        const video = this.videos.find((v) => v.id === message.videoId);
-        if (video) {
-          video.views = message.viewCount;
-        }
-      }
-    },
-
-    handleConnect() {
-      console.log("Socket connected");
-    },
-
-    handleDisconnect() {
-      console.log("Socket disconnected");
-    },
-
-    handleError(error) {
-      console.error("Socket error:", error);
+    startPolling() {
+      setInterval(() => {
+        this.fetchVideos();
+      }, 10000);
     },
     async fetchVideos() {
       try {
@@ -109,7 +85,15 @@ export default {
     },
     async incrementViews(videoId) {
       try {
-        await Vue.axios.post("/api/increment-views", { video_id: videoId });
+        const response = await Vue.axios.post("/api/increment-views", {
+          video_id: videoId,
+        });
+        if (response.data.success) {
+          const video = this.videos.find((v) => v.id === videoId);
+          if (video) {
+            video.views = response.data.views;
+          }
+        }
       } catch (error) {
         console.error("Error incrementing views:", error);
       }
@@ -146,7 +130,6 @@ export default {
           this.player.play();
         }
         await this.incrementViews(videoId);
-        emitEvent("update-view-count", videoId);
       } catch (error) {
         console.error("Error fetching the m3u8 content:", error);
       }
