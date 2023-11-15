@@ -31,6 +31,16 @@
         <v-card-actions>
           <v-icon left small class="mr-2">mdi-eye</v-icon>
           {{ video.views }} views
+
+          <v-icon
+            left
+            small
+            class="mr-2"
+            @click.stop="toggleLike(video)"
+          >
+            {{ video.isLikedByCurrentUser ? 'mdi-heart' : 'mdi-heart-outline' }}
+          </v-icon>
+          {{ video.likes }} likes
         </v-card-actions>
       </v-card>
     </div>
@@ -75,6 +85,7 @@ export default {
             video.presignedThumbnailURL = await this.generateThumbnailURL(
               video.thumbnail_filename
             );
+            video.isLikedByCurrentUser = await this.checkIfUserLikedVideo(video.id);
             return video;
           })
         );
@@ -96,6 +107,53 @@ export default {
         }
       } catch (error) {
         console.error("Error incrementing views:", error);
+      }
+    },
+    async checkIfUserLikedVideo(videoId) {
+      try {
+        const response = await Vue.axios.get(`/api/check-like/${videoId}/${this.$store.state.username}`);
+        return response.data.isLiked;
+      } catch (error) {
+        console.error("Error checking if user liked video:", error);
+        return false;
+      }
+    },
+    async toggleLike(video) {
+      if (video.isLikedByCurrentUser) {
+        await this.decrementLikes(video.id); 
+      } else {
+        await this.incrementLikes( video.id); 
+      }
+      video.isLikedByCurrentUser = !video.isLikedByCurrentUser;
+    },
+    async incrementLikes(videoId) {
+      try {
+        const response = await Vue.axios.post(`/api/increment-likes/${this.$store.state.username}`, {
+          video_id: videoId,
+        });
+        if (response.data.success) {
+          const video = this.videos.find((v) => v.id === videoId);
+          if (video) {
+            video.likes++;
+          }
+        }
+      } catch (error) {
+        console.error("Error incrementing likes:", error);
+      }
+    },
+    async decrementLikes(videoId) {
+      try {
+        const response = await Vue.axios.post(`/api/decrement-likes/${this.$store.state.username}`, {
+          video_id: videoId,
+        });
+        if (response.data.success) {
+          const video = this.videos.find((v) => v.id === videoId);
+          if (video) {
+            video.likes--;
+          }
+        }
+      } catch (error) {
+        console.error("Error decrementing likes:", error);
       }
     },
     async generateThumbnailURL(filename) {
