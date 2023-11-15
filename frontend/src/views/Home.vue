@@ -44,6 +44,14 @@
         </v-card-actions>
       </v-card>
     </div>
+    <div v-for="comment in selectedVideoComments" :key="comment.id">
+      <v-card>
+        <v-card-text>{{ comment.text }}</v-card-text>
+      </v-card>
+    </div>
+
+    <v-textarea v-model="newCommentText" label="Add a comment"></v-textarea>
+    <v-btn @click="postComment(video.id)">Post Comment</v-btn>
   </v-container>
 </template>
 
@@ -60,6 +68,8 @@ export default {
       selectedVideo: null,
       player: null,
       showPlayer: false,
+      selectedVideoComments: [],
+      newCommentText: '',
     };
   },
   mounted() {
@@ -156,6 +166,29 @@ export default {
         console.error("Error decrementing likes:", error);
       }
     },
+    async fetchComments(videoId) {
+      try {
+        const response = await Vue.axios.get(`/api/comments/${videoId}`);
+        this.selectedVideoComments = response.data;
+      } catch (error) {
+        console.error("Error fetching comments:", error);
+      }
+    },
+    async postComment(videoId) {
+      try {
+        const response = await Vue.axios.post(`/api/post-comment/${this.$store.state.username}`, {
+          video_id: videoId, 
+          text: this.newCommentText
+        });
+
+        if (response.data.success) {
+          this.newCommentText = '';
+          this.fetchComments(videoId);  
+        }
+      } catch (error) {
+        console.error("Error posting comment:", error);
+      }
+    },
     async generateThumbnailURL(filename) {
       try {
         const response = await Vue.axios.post(
@@ -188,6 +221,7 @@ export default {
           this.player.play();
         }
         await this.incrementViews(videoId);
+        await this.fetchComments(videoId); 
       } catch (error) {
         console.error("Error fetching the m3u8 content:", error);
       }
