@@ -1,6 +1,6 @@
 import io from "socket.io-client";
 
-const socketUrl = "wss://127.0.0.1:8081";
+const socketUrl = "ws://127.0.0.1:8081";
 
 const socket = io(socketUrl, {
   path: "/socket.io",
