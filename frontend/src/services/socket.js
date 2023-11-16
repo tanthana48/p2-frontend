@@ -3,10 +3,9 @@ import io from "socket.io-client";
 const socketUrl = "ws://localhost:8081";
 
 const socket = io(socketUrl, {
-  path: '/socket.io',
-  transports: ['websocket', 'polling']
+  path: "/socket.io",
+  transports: ["websocket", "polling"],
 });
-
 
 export default socket;
 
@@ -15,7 +14,7 @@ export function emitEvent(event, data) {
 }
 
 export function setupSocketListeners(
-    onNewNotification,
+  onNewNotification,
   onConnect,
   onDisconnect,
   onError

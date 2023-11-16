@@ -74,8 +74,13 @@
       <v-card>
         <v-card-title>Notifications</v-card-title>
         <v-list>
-          <v-list-item v-for="notification in notifications" :key="notification.id">
-            <v-list-item-content>{{ notification.message }}</v-list-item-content>
+          <v-list-item
+            v-for="notification in notifications"
+            :key="notification.id"
+          >
+            <v-list-item-content>{{
+              notification.message
+            }}</v-list-item-content>
           </v-list-item>
         </v-list>
         <v-card-actions>
@@ -88,23 +93,23 @@
 </template>
 
 <script>
-  import Vue from "vue";
-  import {setupSocketListeners } from "@/services/socket.js";
+import Vue from "vue";
+import { setupSocketListeners } from "@/services/socket.js";
 
-  export default {
-    data() {
-      return {
-        notificationsDialog: false,
-        notifications: [],
-      };
+export default {
+  data() {
+    return {
+      notificationsDialog: false,
+      notifications: [],
+    };
+  },
+  computed: {
+    unreadNotificationsCount() {
+      return this.notifications.filter((n) => !n.read).length;
     },
-    computed: {
-      unreadNotificationsCount() {
-        return this.notifications.filter((n) => !n.read).length;
-      },
-    },
-    methods: {
-      setupSocket() {
+  },
+  methods: {
+    setupSocket() {
       setupSocketListeners(
         this.handleNewNotification,
         this.handleConnect,
@@ -124,13 +129,13 @@
     handleError(error) {
       console.error("Socket error:", error);
     },
-      async uploadAction() {
-        await this.$router.push({ path: "/upload" });
-      },
-      async myVideo() {
-        await this.$router.push({ path: "/video" });
-      },
-      async logout() {
+    async uploadAction() {
+      await this.$router.push({ path: "/upload" });
+    },
+    async myVideo() {
+      await this.$router.push({ path: "/video" });
+    },
+    async logout() {
       try {
         const token = localStorage.getItem("userToken");
         let response = await Vue.axios.post(
@@ -155,24 +160,28 @@
         console.error("An error occurred during logout:", error);
       }
     },
-      async showNotifications() {
-        const response = await Vue.axios.get(`/noti/notifications/${this.$store.state.userId}`);
-        this.notifications = response.data;
-        this.notificationsDialog = true;
-      },
-      async markNotificationsAsRead() {
-        await Vue.axios.post(`/noti/mark-notifications-as-read/${this.$store.state.userId}`);
-        this.closeNotificationsDialog();
-      },
-      closeNotificationsDialog() {
-        this.notificationsDialog = false;
-      },
+    async showNotifications() {
+      const response = await Vue.axios.get(
+        `/noti/notifications/${this.$store.state.userId}`
+      );
+      this.notifications = response.data;
+      this.notificationsDialog = true;
     },
-    created() {
-      this.setupSocket();
+    async markNotificationsAsRead() {
+      await Vue.axios.post(
+        `/noti/mark-notifications-as-read/${this.$store.state.userId}`
+      );
+      this.closeNotificationsDialog();
     },
-  };
-  </script>
+    closeNotificationsDialog() {
+      this.notificationsDialog = false;
+    },
+  },
+  created() {
+    this.setupSocket();
+  },
+};
+</script>
 
 <style>
 div.logo {
