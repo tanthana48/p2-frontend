@@ -10,6 +10,9 @@ module.exports = {
         // that is why all api path on backend should begin with /api
         target: "http://localhost:8080",
       },
+      "/noti": {
+        target: "http://localhost:8081",
+      },
     },
     headers: {
       "Access-Control-Allow-Origin": "*",
