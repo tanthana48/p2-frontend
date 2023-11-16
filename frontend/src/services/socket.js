@@ -1,6 +1,6 @@
 import io from "socket.io-client";
 
-const socketUrl = "ws://localhost:8081";
+const socketUrl = "ws://notification-service-service.default.svc:80";
 
 const socket = io(socketUrl, {
   path: "/socket.io",

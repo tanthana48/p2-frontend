@@ -10,9 +10,7 @@
         <v-icon>mdi-bell</v-icon>
         Notifications
         <v-badge :content="unreadNotificationsCount" color="red" overlap>
-          <template v-slot:badge="{ props }">
-            <span v-bind="props" class="badge-custom"></span>
-          </template>
+          <span class="badge-custom">{{ unreadNotificationsCount }}</span>
         </v-badge>
       </v-btn>
 
