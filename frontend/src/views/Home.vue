@@ -32,26 +32,23 @@
           <v-icon left small class="mr-2">mdi-eye</v-icon>
           {{ video.views }} views
 
-          <v-icon
-            left
-            small
-            class="mr-2"
-            @click.stop="toggleLike(video)"
-          >
-            {{ video.isLikedByCurrentUser ? 'mdi-heart' : 'mdi-heart-outline' }}
+          <v-icon left small class="mr-2" @click.stop="toggleLike(video)">
+            {{ video.isLikedByCurrentUser ? "mdi-heart" : "mdi-heart-outline" }}
           </v-icon>
           {{ video.likes }} likes
         </v-card-actions>
-      </v-card>
-    </div>
-    <div v-for="comment in selectedVideoComments" :key="comment.id">
-      <v-card>
-        <v-card-text>{{ comment.text }}</v-card-text>
-      </v-card>
-    </div>
+        <div v-for="comment in selectedVideoComments" :key="comment.id">
+          <v-card>
+            <v-card-text>{{ comment.text }}</v-card-text>
+          </v-card>
+        </div>
 
-    <v-textarea v-model="newCommentText" label="Add a comment"></v-textarea>
-    <v-btn @click="postComment(video.id)">Post Comment</v-btn>
+        <v-textarea v-model="newCommentText" label="Add a comment"></v-textarea>
+        <v-btn @click="postComment(video.id)">Post Comment</v-btn>
+        </v-card>
+      
+    </div>
+    
   </v-container>
 </template>
 
@@ -69,7 +66,7 @@ export default {
       player: null,
       showPlayer: false,
       selectedVideoComments: [],
-      newCommentText: '',
+      newCommentText: "",
     };
   },
   mounted() {
@@ -95,7 +92,9 @@ export default {
             video.presignedThumbnailURL = await this.generateThumbnailURL(
               video.thumbnail_filename
             );
-            video.isLikedByCurrentUser = await this.checkIfUserLikedVideo(video.id);
+            video.isLikedByCurrentUser = await this.checkIfUserLikedVideo(
+              video.id
+            );
             return video;
           })
         );
@@ -121,7 +120,9 @@ export default {
     },
     async checkIfUserLikedVideo(videoId) {
       try {
-        const response = await Vue.axios.get(`/api/check-like/${videoId}/${this.$store.state.username}`);
+        const response = await Vue.axios.get(
+          `/api/check-like/${videoId}/${this.$store.state.username}`
+        );
         return response.data.isLiked;
       } catch (error) {
         console.error("Error checking if user liked video:", error);
@@ -130,17 +131,20 @@ export default {
     },
     async toggleLike(video) {
       if (video.isLikedByCurrentUser) {
-        await this.decrementLikes(video.id); 
+        await this.decrementLikes(video.id);
       } else {
-        await this.incrementLikes( video.id); 
+        await this.incrementLikes(video.id);
       }
       video.isLikedByCurrentUser = !video.isLikedByCurrentUser;
     },
     async incrementLikes(videoId) {
       try {
-        const response = await Vue.axios.post(`/api/increment-likes/${this.$store.state.username}`, {
-          video_id: videoId,
-        });
+        const response = await Vue.axios.post(
+          `/api/increment-likes/${this.$store.state.username}`,
+          {
+            video_id: videoId,
+          }
+        );
         if (response.data.success) {
           const video = this.videos.find((v) => v.id === videoId);
           if (video) {
@@ -153,9 +157,12 @@ export default {
     },
     async decrementLikes(videoId) {
       try {
-        const response = await Vue.axios.post(`/api/decrement-likes/${this.$store.state.username}`, {
-          video_id: videoId,
-        });
+        const response = await Vue.axios.post(
+          `/api/decrement-likes/${this.$store.state.username}`,
+          {
+            video_id: videoId,
+          }
+        );
         if (response.data.success) {
           const video = this.videos.find((v) => v.id === videoId);
           if (video) {
@@ -176,14 +183,17 @@ export default {
     },
     async postComment(videoId) {
       try {
-        const response = await Vue.axios.post(`/api/post-comment/${this.$store.state.username}`, {
-          video_id: videoId, 
-          text: this.newCommentText
-        });
+        const response = await Vue.axios.post(
+          "/api/post-comment/${this.$store.state.username}",
+          {
+            video_id: videoId,
+            text: this.newCommentText,
+          }
+        );
 
         if (response.data.success) {
-          this.newCommentText = '';
-          this.fetchComments(videoId);  
+          this.newCommentText = "";
+          this.fetchComments(videoId);
         }
       } catch (error) {
         console.error("Error posting comment:", error);
@@ -221,7 +231,7 @@ export default {
           this.player.play();
         }
         await this.incrementViews(videoId);
-        await this.fetchComments(videoId); 
+        await this.fetchComments(videoId);
       } catch (error) {
         console.error("Error fetching the m3u8 content:", error);
       }
