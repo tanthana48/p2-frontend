@@ -106,19 +106,19 @@
     },
     methods: {
       async showNotifications() {
-        const response = await Vue.axios.get(`/api/notifications/${this.$store.state.userId}`);
+        const response = await Vue.axios.get(`/noti/notifications/${this.$store.state.userId}`);
         this.notifications = response.data;
         this.notificationsDialog = true;
       },
       async markNotificationsAsRead() {
-        await Vue.axios.post(`/api/mark-notifications-as-read/${this.$store.state.userId}`);
+        await Vue.axios.post(`/noti/mark-notifications-as-read/${this.$store.state.userId}`);
         this.closeNotificationsDialog();
       },
       closeNotificationsDialog() {
         this.notificationsDialog = false;
       },
       initializeSocket() {
-        this.socket = io.connect("http://localhost:8081");
+        this.socket = io.connect("http://notification-service-service:80");
         this.socket.on("connect", () => {
           console.log("Connected to Socket.IO");
         });
