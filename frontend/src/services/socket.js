@@ -1,11 +1,8 @@
 import io from "socket.io-client";
 
-const socketUrl = "ws://localhost:8081";
+const socketUrl = 'ws://localhost:8081/socket.io/?EIO=4&transport=websocket';
 
-const socket = io(socketUrl, {
-  path: "/socket.io",
-  transports: ["websocket"],
-});
+const socket = io(socketUrl);
 
 export default socket;
 
