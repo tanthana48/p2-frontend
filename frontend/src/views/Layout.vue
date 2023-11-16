@@ -149,7 +149,7 @@
         this.notificationsDialog = false;
       },
       initializeSocket() {
-        this.socket = io.connect("http://localhost:80", {
+        this.socket = io.connect("http://localhost:8081", {
           path: '/socket.io',
           transports: ['websocket', 'polling']
         });
