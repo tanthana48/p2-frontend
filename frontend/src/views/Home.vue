@@ -1,6 +1,6 @@
 <template>
-  <v-container class="text-center">
-    <div class="my-5" v-if="showPlayer">
+  <v-container v-if="showPlayer" class="text-center">
+    <div class="my-5">
       <video
         ref="videoPlayer"
         class="video-js vjs-default-skin mx-auto"
