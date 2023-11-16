@@ -148,7 +148,7 @@ export default {
         if (response.data.success) {
           const video = this.videos.find((v) => v.id === videoId);
           if (video) {
-            video.likes++;
+            video.likes = response.data.likes;
           }
         }
       } catch (error) {
@@ -166,7 +166,7 @@ export default {
         if (response.data.success) {
           const video = this.videos.find((v) => v.id === videoId);
           if (video) {
-            video.likes--;
+            video.likes = response.data.likes;
           }
         }
       } catch (error) {
@@ -184,7 +184,7 @@ export default {
     async postComment(videoId) {
       try {
         const response = await Vue.axios.post(
-          "/api/post-comment/${this.$store.state.username}",
+          `/api/post-comment/${this.$store.state.username}`,
           {
             video_id: videoId,
             text: this.newCommentText,
@@ -192,8 +192,10 @@ export default {
         );
 
         if (response.data.success) {
+          this.selectedVideoComments.push({
+            text: this.newCommentText,
+          });
           this.newCommentText = "";
-          this.fetchComments(videoId);
         }
       } catch (error) {
         console.error("Error posting comment:", error);
