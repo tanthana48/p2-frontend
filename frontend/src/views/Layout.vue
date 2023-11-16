@@ -105,6 +105,37 @@
       },
     },
     methods: {
+      async uploadAction() {
+        await this.$router.push({ path: "/upload" });
+      },
+      async myVideo() {
+        await this.$router.push({ path: "/video" });
+      },
+      async logout() {
+      try {
+        const token = localStorage.getItem("userToken");
+        let response = await Vue.axios.post(
+          "/api/logout",
+          {},
+          {
+            headers: {
+              Authorization: token,
+            },
+          }
+        );
+        localStorage.removeItem("userToken");
+        if (response.data.message === "Logged out successfully") {
+          await this.$router.push({ path: "/login" });
+        } else {
+          console.error(
+            "Failed to logout:",
+            response.data.error || "Unknown error"
+          );
+        }
+      } catch (error) {
+        console.error("An error occurred during logout:", error);
+      }
+    },
       async showNotifications() {
         const response = await Vue.axios.get(`/noti/notifications/${this.$store.state.userId}`);
         this.notifications = response.data;
@@ -118,7 +149,7 @@
         this.notificationsDialog = false;
       },
       initializeSocket() {
-        this.socket = io.connect("http://notification-service-service:80");
+        this.socket = io.connect("ws://localhost:80");
         this.socket.on("connect", () => {
           console.log("Connected to Socket.IO");
         });
