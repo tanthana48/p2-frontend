@@ -149,7 +149,7 @@
         this.notificationsDialog = false;
       },
       initializeSocket() {
-        this.socket = io.connect("ws://localhost:80");
+        this.socket = io.connect("ws://localhost:8081");
         this.socket.on("connect", () => {
           console.log("Connected to Socket.IO");
         });
