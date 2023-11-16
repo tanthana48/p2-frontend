@@ -37,7 +37,14 @@
           </v-icon>
           {{ video.likes }} likes
         </v-card-actions>
-        <div v-for="comment in selectedVideoComments" :key="comment.id">
+      </v-card>
+      
+    </div>
+    <div  
+      v-if="showPlayer"  
+      v-for="video in videos"
+      :key="video.id">
+    <div v-for="comment in selectedVideoComments" :key="comment.id">
           <v-card>
             <v-card-text>{{ comment.text }}</v-card-text>
           </v-card>
@@ -45,9 +52,7 @@
 
         <v-textarea v-model="newCommentText" label="Add a comment"></v-textarea>
         <v-btn @click="postComment(video.id)">Post Comment</v-btn>
-        </v-card>
-      
-    </div>
+      </div>
     
   </v-container>
 </template>
