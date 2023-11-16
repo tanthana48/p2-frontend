@@ -149,7 +149,7 @@
         this.notificationsDialog = false;
       },
       initializeSocket() {
-        this.socket = io("ws://localhost:8081", {
+        this.socket = io("ws://notification-service-service.default.svc:80", {
           path: '/socket.io',
           transports: ['websocket', 'polling']
         });
