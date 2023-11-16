@@ -149,10 +149,11 @@
         this.notificationsDialog = false;
       },
       initializeSocket() {
-        this.socket = io.connect("http://localhost:8081", {
+        this.socket = io("ws://localhost:8081", {
           path: '/socket.io',
           transports: ['websocket', 'polling']
         });
+
         this.socket.on("connect", () => {
           console.log("Connected to Socket.IO");
         });
