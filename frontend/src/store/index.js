@@ -9,6 +9,7 @@ export default new Vuex.Store({
     username: null,
     name: null,
     role: "",
+    id: null,
   },
   mutations: {
     setIsLoggedIn(state, isLoggedIn) {
@@ -23,6 +24,9 @@ export default new Vuex.Store({
     setRole(state, role) {
       state.role = role;
     },
+    setID(state, id) {
+      state.id = id;
+    },
   },
   actions: {
     setLoggedInUser({ commit }, payload) {
@@ -30,12 +34,14 @@ export default new Vuex.Store({
       commit("setUsername", payload.username);
       commit("setName", payload.name);
       commit("setRole", payload.role);
+      commit("setID", payload.id);
     },
     clearUser({ commit }) {
       commit("setIsLoggedIn", false);
       commit("setUsername", null);
       commit("setName", null);
       commit("setRole", "");
+      commit("setID", null);
     },
   },
   modules: {},

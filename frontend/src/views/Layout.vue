@@ -162,14 +162,14 @@ export default {
     },
     async showNotifications() {
       const response = await Vue.axios.get(
-        `/noti/notifications/${this.$store.state.userId}`
+        `/noti/notifications/${this.$store.state.id}`
       );
       this.notifications = response.data;
       this.notificationsDialog = true;
     },
     async markNotificationsAsRead() {
       await Vue.axios.post(
-        `/noti/mark-notifications-as-read/${this.$store.state.userId}`
+        `/noti/mark-notifications-as-read/${this.$store.state.id}`
       );
       this.closeNotificationsDialog();
     },
