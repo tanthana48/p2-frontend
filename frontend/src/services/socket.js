@@ -4,7 +4,7 @@ const socketUrl = "ws://localhost:8081";
 
 const socket = io(socketUrl, {
   path: "/socket.io",
-  transports: ["websocket", "polling"],
+  transports: ["websocket"],
 });
 
 export default socket;
