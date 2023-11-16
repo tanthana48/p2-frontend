@@ -89,14 +89,13 @@
 
 <script>
   import Vue from "vue";
-  import io from "socket.io-client";
+  import {setupSocketListeners } from "@/services/socket.js";
 
   export default {
     data() {
       return {
         notificationsDialog: false,
         notifications: [],
-        socket: null,
       };
     },
     computed: {
@@ -105,6 +104,26 @@
       },
     },
     methods: {
+      setupSocket() {
+      setupSocketListeners(
+        this.handleNewNotification,
+        this.handleConnect,
+        this.handleDisconnect,
+        this.handleError
+      );
+    },
+    handleNewNotification(data) {
+      this.notifications.unshift(data.notification);
+    },
+    handleConnect() {
+      console.log("Socket connected");
+    },
+    handleDisconnect() {
+      console.log("Socket disconnected");
+    },
+    handleError(error) {
+      console.error("Socket error:", error);
+    },
       async uploadAction() {
         await this.$router.push({ path: "/upload" });
       },
@@ -148,27 +167,9 @@
       closeNotificationsDialog() {
         this.notificationsDialog = false;
       },
-      initializeSocket() {
-        this.socket = io("ws://notification-service-service.default.svc:80", {
-          path: '/socket.io',
-          transports: ['websocket', 'polling']
-        });
-
-        this.socket.on("connect", () => {
-          console.log("Connected to Socket.IO");
-        });
-
-        this.socket.on("new-notification", (data) => {
-          this.notifications.unshift(data.notification);
-        });
-
-        this.socket.on("disconnect", () => {
-          console.log("Disconnected from Socket.IO");
-        });
-      },
     },
     created() {
-      this.initializeSocket();
+      this.setupSocket();
     },
   };
   </script>
