@@ -150,7 +150,7 @@
       },
       initializeSocket() {
         this.socket = io.connect("http://localhost:8081", {
-          transports: ['websocket', 'polling']
+          path: '/socket.io'
         });
         this.socket.on("connect", () => {
           console.log("Connected to Socket.IO");
