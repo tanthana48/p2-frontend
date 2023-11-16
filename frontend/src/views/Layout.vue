@@ -6,6 +6,15 @@
         <v-icon class="white--text"> mdi mdi-account </v-icon>
         {{ $store.state.username }}</span
       >
+      <v-btn text color="white" @click="showNotifications">
+        <v-icon>mdi-bell</v-icon>
+        Notifications
+        <v-badge :content="unreadNotificationsCount" color="red" overlap>
+          <template v-slot:badge="{ props }">
+            <span v-bind="props" class="badge-custom"></span>
+          </template>
+        </v-badge>
+      </v-btn>
 
       <v-btn text color="white" @click="uploadAction">
         <v-icon left>mdi-upload</v-icon>
@@ -61,51 +70,81 @@
     <v-main>
       <router-view></router-view>
     </v-main>
+    <v-dialog v-model="notificationsDialog" max-width="400">
+      <v-card>
+        <v-card-title>Notifications</v-card-title>
+        <v-list>
+          <v-list-item v-for="notification in notifications" :key="notification.id">
+            <v-list-item-content>{{ notification.message }}</v-list-item-content>
+          </v-list-item>
+        </v-list>
+        <v-card-actions>
+          <v-btn @click="markNotificationsAsRead">Mark as Read</v-btn>
+          <v-btn @click="closeNotificationsDialog">Close</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
 <script>
-import Vue from "vue";
+  import Vue from "vue";
+  import io from "socket.io-client";
 
-export default {
-  methods: {
-    async uploadAction() {
-      await this.$router.push({ path: "/upload" });
+  export default {
+    data() {
+      return {
+        notificationsDialog: false,
+        notifications: [],
+        socket: null,
+      };
     },
-    async myVideo() {
-      await this.$router.push({ path: "/video" });
+    computed: {
+      unreadNotificationsCount() {
+        return this.notifications.filter((n) => !n.read).length;
+      },
     },
-    async logout() {
-      try {
-        const token = localStorage.getItem("userToken");
-        let response = await Vue.axios.post(
-          "/api/logout",
-          {},
-          {
-            headers: {
-              Authorization: token,
-            },
-          }
-        );
-        localStorage.removeItem("userToken");
-        if (response.data.message === "Logged out successfully") {
-          await this.$router.push({ path: "/login" });
-        } else {
-          console.error(
-            "Failed to logout:",
-            response.data.error || "Unknown error"
-          );
-        }
-      } catch (error) {
-        console.error("An error occurred during logout:", error);
-      }
+    methods: {
+      async showNotifications() {
+        const response = await Vue.axios.get(`/api/notifications/${this.$store.state.userId}`);
+        this.notifications = response.data;
+        this.notificationsDialog = true;
+      },
+      async markNotificationsAsRead() {
+        await Vue.axios.post(`/api/mark-notifications-as-read/${this.$store.state.userId}`);
+        this.closeNotificationsDialog();
+      },
+      closeNotificationsDialog() {
+        this.notificationsDialog = false;
+      },
+      initializeSocket() {
+        this.socket = io.connect("http://localhost:8081");
+        this.socket.on("connect", () => {
+          console.log("Connected to Socket.IO");
+        });
+
+        this.socket.on("new-notification", (data) => {
+          this.notifications.unshift(data.notification);
+        });
+
+        this.socket.on("disconnect", () => {
+          console.log("Disconnected from Socket.IO");
+        });
+      },
     },
-  },
-};
-</script>
+    created() {
+      this.initializeSocket();
+    },
+  };
+  </script>
 
 <style>
 div.logo {
   font-size: 18px;
+}
+.badge-custom {
+  background-color: red;
+  color: white;
+  font-size: 12px;
 }
 </style>
