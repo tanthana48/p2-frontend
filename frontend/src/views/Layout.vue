@@ -76,11 +76,12 @@
             v-for="notification in notifications"
             :key="notification.id"
           >
-            <v-list-item-content>{{
-              notification.message
-            }}</v-list-item-content>
+            <v-list-item-content>
+              {{ notification[0].message }}
+            </v-list-item-content>
           </v-list-item>
         </v-list>
+
         <v-card-actions>
           <v-btn @click="markNotificationsAsRead">Mark as Read</v-btn>
           <v-btn @click="closeNotificationsDialog">Close</v-btn>
@@ -116,8 +117,8 @@ export default {
       );
     },
     handleNewNotification(data) {
-      console.log('Received new notification:', data);
-      this.notifications.unshift(data.notification);
+      console.log("Received new notification:", data);
+      this.notifications = data.notification;
     },
     handleConnect() {
       console.log("Socket connected");

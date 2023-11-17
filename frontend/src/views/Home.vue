@@ -215,7 +215,7 @@ export default {
     async loadVideo(hlsFilename, videoId) {
       try {
         this.showPlayer = true;
-        this.selectedVideo = this.videos.find(v => v.id === videoId);
+        this.selectedVideo = this.videos.find((v) => v.id === videoId);
         const response = await Vue.axios.post("/api/get-presigned-m3u8", {
           hls_filename: hlsFilename,
         });
@@ -233,7 +233,7 @@ export default {
           this.player.load();
           this.player.play();
         }
-       
+
         await this.incrementViews(videoId);
         await this.fetchComments(videoId);
       } catch (error) {
