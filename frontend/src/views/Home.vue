@@ -39,17 +39,16 @@
         </v-card-actions>
       </v-card>
     </div>
-    <div v-for="video in videos" :key="video.id">
-        <div v-for="comment in selectedVideoComments" :key="comment.id">
-          <v-card>
-            <v-card-text>{{ comment.text }}</v-card-text>
-          </v-card>
-        </div>
-
-        <v-textarea v-model="newCommentText" label="Add a comment"></v-textarea>
-        <v-btn @click="postComment(video.id)">Post Comment</v-btn>
+    <div v-if="showPlayer && selectedVideo">
+      <div v-for="comment in selectedVideoComments" :key="comment.id">
+        <v-card>
+          <v-card-text>{{ comment.text }}</v-card-text>
+        </v-card>
       </div>
-    
+
+      <v-textarea v-model="newCommentText" label="Add a comment"></v-textarea>
+      <v-btn @click="postComment(selectedVideo.id)">Post Comment</v-btn>
+    </div>
   </v-container>
 </template>
 
@@ -233,6 +232,7 @@ export default {
           this.player.load();
           this.player.play();
         }
+        this.selectedVideo = this.videos.find(v => v.id === videoId);
         await this.incrementViews(videoId);
         await this.fetchComments(videoId);
       } catch (error) {
