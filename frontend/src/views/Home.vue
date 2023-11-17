@@ -39,8 +39,7 @@
         </v-card-actions>
       </v-card>
     </div>
-    <div v-if="showPlayer">
-      <div v-for="video in videos" :key="video.id">
+    <div v-for="video in videos" :key="video.id">
         <div v-for="comment in selectedVideoComments" :key="comment.id">
           <v-card>
             <v-card-text>{{ comment.text }}</v-card-text>
@@ -50,7 +49,7 @@
         <v-textarea v-model="newCommentText" label="Add a comment"></v-textarea>
         <v-btn @click="postComment(video.id)">Post Comment</v-btn>
       </div>
-    </div>
+    
   </v-container>
 </template>
 
