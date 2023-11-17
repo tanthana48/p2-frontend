@@ -118,8 +118,7 @@ export default {
     },
     handleNewNotification(data) {
       console.log("Received new notification:", data);
-      this.notifications =
-        data.notification[0].$data || data.notification[0].toJSON();
+      this.notifications = JSON.parse(JSON.stringify(data.notification[0]));
     },
 
     handleConnect() {
