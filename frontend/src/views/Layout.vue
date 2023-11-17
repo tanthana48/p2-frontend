@@ -77,7 +77,7 @@
             :key="notification.id"
           >
             <v-list-item-content>{{
-              notification.message
+              notification
             }}</v-list-item-content>
           </v-list-item>
         </v-list>
