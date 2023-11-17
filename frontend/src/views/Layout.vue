@@ -77,7 +77,11 @@
             :key="notification.id"
           >
             <v-list-item-content>
-              {{ notification[0].message }}
+              {{
+                notification && notification.message
+                  ? notification.message
+                  : "No message available"
+              }}
             </v-list-item-content>
           </v-list-item>
         </v-list>
