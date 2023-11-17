@@ -116,11 +116,8 @@ export default {
       );
     },
     handleNewNotification(data) {
-      const receivedNotification = data.notification[0];
-
-      console.log('Received new notification:', receivedNotification);
-
-      this.notifications.unshift(receivedNotification);
+      console.log('Received new notification:', data);
+      this.notifications.unshift(data.notification);
     },
     handleConnect() {
       console.log("Socket connected");
