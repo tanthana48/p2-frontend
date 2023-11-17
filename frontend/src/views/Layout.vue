@@ -104,7 +104,9 @@ export default {
   },
   computed: {
     unreadNotificationsCount() {
-      return this.notifications.filter((n) => !n.read).length;
+      return Array.isArray(this.notifications)
+        ? this.notifications.filter((n) => !n.read).length
+        : 0;
     },
   },
   methods: {
