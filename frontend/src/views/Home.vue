@@ -130,12 +130,24 @@ export default {
       }
     },
     async toggleLike(video) {
-      if (video.isLikedByCurrentUser) {
-        await this.decrementLikes(video.id);
-      } else {
-        await this.incrementLikes(video.id);
-      }
+      const originalLikes = video.likes;
+      const originalLikeStatus = video.isLikedByCurrentUser;
+
       video.isLikedByCurrentUser = !video.isLikedByCurrentUser;
+      video.likes += video.isLikedByCurrentUser ? 1 : -1;
+
+      try {
+        if (originalLikeStatus) {
+          await this.decrementLikes(video.id);
+        } else {
+          await this.incrementLikes(video.id);
+        }
+      } catch (error) {
+        console.error("Error updating like status:", error);
+        video.isLikedByCurrentUser = originalLikeStatus;
+        video.likes = originalLikes;
+      }
+     
     },
     async incrementLikes(videoId) {
       try {
@@ -148,7 +160,8 @@ export default {
         if (response.data.success) {
           const video = this.videos.find((v) => v.id === videoId);
           if (video) {
-            video.likes = response.data.likes;
+            video.likes++;
+            //  = response.data.likes;
           }
         }
       } catch (error) {
@@ -166,7 +179,8 @@ export default {
         if (response.data.success) {
           const video = this.videos.find((v) => v.id === videoId);
           if (video) {
-            video.likes = response.data.likes;
+            video.likes --;
+            // = response.data.likes;
           }
         }
       } catch (error) {
