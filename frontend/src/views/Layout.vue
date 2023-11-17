@@ -116,6 +116,7 @@ export default {
       );
     },
     handleNewNotification(data) {
+      console.log('Received new notification:', data);
       this.notifications.unshift(data.notification);
     },
     handleConnect() {
