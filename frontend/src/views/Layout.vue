@@ -108,13 +108,6 @@ export default {
       }
     },
   },
-  computed: {
-    unreadNotificationsCount() {
-      return Array.isArray(this.notifications)
-        ? this.notifications.filter((n) => !n.read).length
-        : 0;
-    },
-  },
   methods: {
     setupSocket() {
       setupSocketListeners(
