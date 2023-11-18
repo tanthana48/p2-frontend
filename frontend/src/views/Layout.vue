@@ -10,11 +10,16 @@
         </v-badge>
       </v-btn>
 
-      <v-menu v-model="notificationsDropdownOpen" bottom>
+      <v-menu
+        v-model="notificationsDropdownOpen"
+        attach="#notifications-button"
+        bottom
+      >
         <v-list>
           <v-list-item
             v-for="notification in notifications"
             :key="notification.id"
+            @click="markNotificationAsRead(notification.id)"
           >
             <v-list-item-content>
               {{ notification.message }}
@@ -79,7 +84,6 @@
     </v-main>
   </v-app>
 </template>
-
 <script>
 import Vue from "vue";
 import { setupSocketListeners } from "@/services/socket.js";
@@ -90,6 +94,7 @@ export default {
       notificationsDropdownOpen: false,
       notificationsDialog: false,
       notifications: [],
+      unreadNotificationsCount: 0,
     };
   },
   watch: {
@@ -122,16 +127,26 @@ export default {
     toggleNotificationsDropdown() {
       this.notificationsDropdownOpen = !this.notificationsDropdownOpen;
     },
+    async fetchNotifications() {
+      const response = await Vue.axios.get(
+        `/noti/notifications/${this.$store.state.id}`
+      );
+      this.notifications = response.data;
+    },
+    async markNotificationAsRead(notificationId) {
+      await Vue.axios.post(
+        `/noti/mark-notifications-as-read/${notificationId}`
+      );
+      this.notifications = this.notifications.filter(
+        (notification) => notification.id !== notificationId
+      );
+    },
     handleNewNotification(data) {
       console.log("Received new notification:", data);
       const receivedNotification = data.notification && data.notification[0];
 
       if (receivedNotification) {
         console.log("Notification message:", receivedNotification.message);
-
-        if (this.notifications.length > 10) {
-          this.notifications.pop();
-        }
 
         this.notifications.unshift(receivedNotification);
 
@@ -145,6 +160,7 @@ export default {
 
     handleConnect() {
       console.log("Socket connected");
+      this.fetchNotifications();
     },
     handleDisconnect() {
       console.log("Socket disconnected");
@@ -152,52 +168,27 @@ export default {
     handleError(error) {
       console.error("Socket error:", error);
     },
-    async uploadAction() {
-      await this.$router.push({ path: "/upload" });
+    uploadAction() {
+      this.$router.push({ path: "/upload" });
     },
-    async myVideo() {
-      await this.$router.push({ path: "/video" });
+    myVideo() {
+      this.$router.push({ path: "/video" });
     },
-    async logout() {
+    logout() {
       try {
         const token = localStorage.getItem("userToken");
-        let response = await Vue.axios.post(
-          "/api/logout",
-          {},
-          {
-            headers: {
-              Authorization: token,
-            },
-          }
-        );
-        localStorage.removeItem("userToken");
-        if (response.data.message === "Logged out successfully") {
-          await this.$router.push({ path: "/login" });
-        } else {
-          console.error(
-            "Failed to logout:",
-            response.data.error || "Unknown error"
-          );
-        }
+        Vue.axios
+          .post("/api/logout", {}, { headers: { Authorization: token } })
+          .then(() => {
+            localStorage.removeItem("userToken");
+            this.$router.push({ path: "/login" });
+          })
+          .catch((error) => {
+            console.error("Failed to logout:", error);
+          });
       } catch (error) {
         console.error("An error occurred during logout:", error);
       }
-    },
-    async showNotifications() {
-      const response = await Vue.axios.get(
-        `/noti/notifications/${this.$store.state.id}`
-      );
-      this.notifications = response.data;
-      this.notificationsDialog = true;
-    },
-    async markNotificationsAsRead() {
-      await Vue.axios.post(
-        `/noti/mark-notifications-as-read/${this.$store.state.id}`
-      );
-      this.closeNotificationsDialog();
-    },
-    closeNotificationsDialog() {
-      this.notificationsDialog = false;
     },
   },
   created() {
