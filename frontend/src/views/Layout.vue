@@ -119,6 +119,7 @@ export default {
           `/noti/notifications/${this.$store.state.id}`
         );
         console.log("Fetched Notifications:", response.data);
+        console.log("Fetched Notifications:", response.data.notifications);
         this.notifications = response.data.notifications;
       } catch (error) {
         console.error("Error fetching notifications:", error);
