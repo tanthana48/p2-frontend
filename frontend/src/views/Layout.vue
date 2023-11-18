@@ -2,17 +2,27 @@
   <v-app>
     <v-app-bar app color="#2C2C2C">
       <v-spacer></v-spacer>
-      <span class="mr-4 white--text">
-        <v-icon class="white--text"> mdi mdi-account </v-icon>
-        {{ $store.state.username }}</span
-      >
-      <v-btn text color="white" @click="showNotifications">
+      <v-btn text color="white" @click="toggleNotificationsDropdown">
         <v-icon>mdi-bell</v-icon>
         Notifications
         <v-badge :content="unreadNotificationsCount" color="red" overlap>
           <span class="badge-custom">{{ unreadNotificationsCount }}</span>
         </v-badge>
       </v-btn>
+
+      <v-menu v-model="notificationsDropdownOpen" bottom>
+        <v-list>
+          <v-list-item
+            v-for="notification in notifications"
+            :key="notification.id"
+            @click="markNotificationAsRead(notification.id)"
+          >
+            <v-list-item-content>
+              {{ notification.message }}
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-menu>
 
       <v-btn text color="white" @click="uploadAction">
         <v-icon left>mdi-upload</v-icon>
@@ -68,28 +78,8 @@
     <v-main>
       <router-view></router-view>
     </v-main>
-    <v-dialog v-model="notificationsDialog" max-width="400">
-      <v-card>
-        <v-card-title>Notifications</v-card-title>
-        <v-list>
-          <v-list-item
-            v-for="notification in notifications"
-            :key="notification.id"
-          >
-            <v-list-item-content>{{
-              notification.message
-            }}</v-list-item-content>
-          </v-list-item>
-        </v-list>
-        <v-card-actions>
-          <v-btn @click="markNotificationsAsRead">Mark as Read</v-btn>
-          <v-btn @click="closeNotificationsDialog">Close</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </v-app>
 </template>
-
 <script>
 import Vue from "vue";
 import { setupSocketListeners } from "@/services/socket.js";
@@ -97,13 +87,27 @@ import { setupSocketListeners } from "@/services/socket.js";
 export default {
   data() {
     return {
+      notificationsDropdownOpen: false,
       notificationsDialog: false,
       notifications: [],
     };
   },
+  watch: {
+    notifications(notifications) {
+      if (notifications.length > 0) {
+        this.unreadNotificationsCount = notifications.filter(
+          (n) => !n.read
+        ).length;
+      } else {
+        this.unreadNotificationsCount = 0;
+      }
+    },
+  },
   computed: {
     unreadNotificationsCount() {
-      return this.notifications.filter((n) => !n.read).length;
+      return Array.isArray(this.notifications)
+        ? this.notifications.filter((n) => !n.read).length
+        : 0;
     },
   },
   methods: {
@@ -115,9 +119,28 @@ export default {
         this.handleError
       );
     },
-    handleNewNotification(data) {
-      this.notifications.unshift(data.notification);
+    toggleNotificationsDropdown() {
+      this.notificationsDropdownOpen = !this.notificationsDropdownOpen;
     },
+    async fetchNotifications() {
+      const response = await Vue.axios.get(
+        `/noti/notifications/${this.$store.state.id}`
+      );
+      this.notifications = response.data;
+    },
+    async markNotificationAsRead(notificationId) {
+      await Vue.axios.post(
+        `/noti/mark-notifications-as-read/${notificationId}`
+      );
+      this.notifications = this.notifications.filter(
+        (notification) => notification.id !== notificationId
+      );
+    },
+    handleNewNotification(data) {
+      console.log("Received new notification:", data);
+      this.fetchNotifications();
+    },
+
     handleConnect() {
       console.log("Socket connected");
     },
@@ -127,52 +150,27 @@ export default {
     handleError(error) {
       console.error("Socket error:", error);
     },
-    async uploadAction() {
-      await this.$router.push({ path: "/upload" });
+    uploadAction() {
+      this.$router.push({ path: "/upload" });
     },
-    async myVideo() {
-      await this.$router.push({ path: "/video" });
+    myVideo() {
+      this.$router.push({ path: "/video" });
     },
-    async logout() {
+    logout() {
       try {
         const token = localStorage.getItem("userToken");
-        let response = await Vue.axios.post(
-          "/api/logout",
-          {},
-          {
-            headers: {
-              Authorization: token,
-            },
-          }
-        );
-        localStorage.removeItem("userToken");
-        if (response.data.message === "Logged out successfully") {
-          await this.$router.push({ path: "/login" });
-        } else {
-          console.error(
-            "Failed to logout:",
-            response.data.error || "Unknown error"
-          );
-        }
+        Vue.axios
+          .post("/api/logout", {}, { headers: { Authorization: token } })
+          .then(() => {
+            localStorage.removeItem("userToken");
+            this.$router.push({ path: "/login" });
+          })
+          .catch((error) => {
+            console.error("Failed to logout:", error);
+          });
       } catch (error) {
         console.error("An error occurred during logout:", error);
       }
-    },
-    async showNotifications() {
-      const response = await Vue.axios.get(
-        `/noti/notifications/${this.$store.state.id}`
-      );
-      this.notifications = response.data;
-      this.notificationsDialog = true;
-    },
-    async markNotificationsAsRead() {
-      await Vue.axios.post(
-        `/noti/mark-notifications-as-read/${this.$store.state.id}`
-      );
-      this.closeNotificationsDialog();
-    },
-    closeNotificationsDialog() {
-      this.notificationsDialog = false;
     },
   },
   created() {
