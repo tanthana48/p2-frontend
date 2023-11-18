@@ -2,17 +2,26 @@
   <v-app>
     <v-app-bar app color="#2C2C2C">
       <v-spacer></v-spacer>
-      <span class="mr-4 white--text">
-        <v-icon class="white--text"> mdi mdi-account </v-icon>
-        {{ $store.state.username }}</span
-      >
-      <v-btn text color="white" @click="showNotifications">
+      <v-btn text color="white" @click="toggleNotificationsDropdown">
         <v-icon>mdi-bell</v-icon>
         Notifications
         <v-badge :content="unreadNotificationsCount" color="red" overlap>
           <span class="badge-custom">{{ unreadNotificationsCount }}</span>
         </v-badge>
       </v-btn>
+
+      <v-menu v-model="notificationsDropdownOpen" bottom>
+        <v-list>
+          <v-list-item
+            v-for="notification in notifications"
+            :key="notification.id"
+          >
+            <v-list-item-content>
+              {{ notification.message }}
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-menu>
 
       <v-btn text color="white" @click="uploadAction">
         <v-icon left>mdi-upload</v-icon>
@@ -68,26 +77,6 @@
     <v-main>
       <router-view></router-view>
     </v-main>
-    <v-dialog v-model="notificationsDialog" max-width="400">
-      <v-card>
-        <v-card-title>Notifications</v-card-title>
-        <v-list>
-          <v-list-item
-            v-for="notification in notifications"
-            :key="notification.id"
-          >
-            <v-list-item-content>
-              {{ notification.message }}
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
-
-        <v-card-actions>
-          <v-btn @click="markNotificationsAsRead">Mark as Read</v-btn>
-          <v-btn @click="closeNotificationsDialog">Close</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </v-app>
 </template>
 
@@ -98,6 +87,7 @@ import { setupSocketListeners } from "@/services/socket.js";
 export default {
   data() {
     return {
+      notificationsDropdownOpen: false,
       notificationsDialog: false,
       notifications: [],
     };
@@ -128,6 +118,9 @@ export default {
         this.handleDisconnect,
         this.handleError
       );
+    },
+    toggleNotificationsDropdown() {
+      this.notificationsDropdownOpen = !this.notificationsDropdownOpen;
     },
     handleNewNotification(data) {
       console.log("Received new notification:", data);
