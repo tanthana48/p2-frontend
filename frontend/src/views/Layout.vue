@@ -24,6 +24,11 @@
         </v-list>
       </v-menu>
 
+      <v-col>
+        <v-icon>mdi-account-circle</v-icon>
+        {{ $store.state.username }}
+      </v-col>
+
       <v-btn text color="white" @click="uploadAction">
         <v-icon left>mdi-upload</v-icon>
         Upload
@@ -112,11 +117,17 @@ export default {
       this.notificationsDropdownOpen = !this.notificationsDropdownOpen;
     },
     async fetchNotifications() {
-      const response = await Vue.axios.get(
-        `/noti/notifications/${this.$store.state.id}`
-      );
-      this.notifications = response.data.notifications;
+      try {
+        const response = await Vue.axios.get(
+          `/noti/notifications/${this.$store.state.id}`
+        );
+        console.log("Fetched Notifications:", response.data);
+        this.notifications = response.data.notifications;
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
     },
+
     async markNotificationAsRead(notificationId) {
       await Vue.axios.post(
         `/noti/mark-notifications-as-read/${notificationId}`
