@@ -168,7 +168,7 @@ export default {
         if (response.data.success) {
           const video = this.videos.find((v) => v.id === videoId);
           if (video) {
-            video.likes = response.data.likes;
+            video.likes++;
           }
         }
       } catch (error) {
@@ -186,7 +186,7 @@ export default {
         if (response.data.success) {
           const video = this.videos.find((v) => v.id === videoId);
           if (video) {
-            video.likes = response.data.likes;
+            video.likes --;
           }
         }
       } catch (error) {
