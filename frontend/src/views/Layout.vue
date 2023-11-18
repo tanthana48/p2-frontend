@@ -128,7 +128,7 @@ export default {
         `/noti/notifications/${this.$store.state.id}`
       );
       this.notifications = response.data;
-      console.log("Fetched Notifications:", JSON.parse(JSON.stringify(this.notifications)));
+      console.log("Fetched Notifications:", this.notifications);
     },
     async markNotificationAsRead(notificationId) {
       await Vue.axios.post(
