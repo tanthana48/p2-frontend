@@ -135,6 +135,11 @@ export default {
 
       if (receivedNotification) {
         console.log("Notification message:", receivedNotification.message);
+
+        if (this.notifications.length > 10) {
+          this.notifications.pop();
+        }
+
         this.notifications.unshift(receivedNotification);
 
         if (!receivedNotification.read) {
