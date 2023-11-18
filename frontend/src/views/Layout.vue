@@ -10,11 +10,7 @@
         </v-badge>
       </v-btn>
 
-      <v-menu
-        v-model="notificationsDropdownOpen"
-        attach="#notifications-button"
-        bottom
-      >
+      <v-menu v-model="notificationsDropdownOpen" bottom>
         <v-list>
           <v-list-item
             v-for="notification in notifications"
@@ -94,7 +90,6 @@ export default {
       notificationsDropdownOpen: false,
       notificationsDialog: false,
       notifications: [],
-      unreadNotificationsCount: 0,
     };
   },
   watch: {
@@ -106,6 +101,13 @@ export default {
       } else {
         this.unreadNotificationsCount = 0;
       }
+    },
+  },
+  computed: {
+    unreadNotificationsCount() {
+      return Array.isArray(this.notifications)
+        ? this.notifications.filter((n) => !n.read).length
+        : 0;
     },
   },
   methods: {
