@@ -123,10 +123,12 @@ export default {
       this.notificationsDropdownOpen = !this.notificationsDropdownOpen;
     },
     async fetchNotifications() {
+      console.log("User ID:", this.$store.state.id);
       const response = await Vue.axios.get(
         `/noti/notifications/${this.$store.state.id}`
       );
       this.notifications = response.data;
+      console.log("Fetched Notifications:", this.notifications);
     },
     async markNotificationAsRead(notificationId) {
       await Vue.axios.post(
