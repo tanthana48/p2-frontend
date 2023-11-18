@@ -2,6 +2,8 @@
   <v-app>
     <v-app-bar app color="#2C2C2C">
       <v-spacer></v-spacer>
+      <v-icon>mdi-account-circle</v-icon>
+        {{ $store.state.username }}
       <v-btn text color="white" @click="toggleNotificationsDropdown">
         <v-icon>mdi-bell</v-icon>
         Notifications
@@ -23,11 +25,6 @@
           </v-list-item>
         </v-list>
       </v-menu>
-
-      <v-col>
-        <v-icon>mdi-account-circle</v-icon>
-        {{ $store.state.username }}
-      </v-col>
 
       <v-btn text color="white" @click="uploadAction">
         <v-icon left>mdi-upload</v-icon>
