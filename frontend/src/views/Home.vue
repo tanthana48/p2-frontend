@@ -141,14 +141,10 @@ export default {
       video.likes += video.isLikedByCurrentUser ? 1 : -1;
 
       try {
-        let updatedLikes;
         if (originalLikeStatus) {
-          updatedLikes = await this.decrementLikes(video.id);
+          video.likes = await this.decrementLikes(video.id);
         } else {
-          updatedLikes = await this.incrementLikes(video.id);
-        }
-        if (updatedLikes !== null) {
-          video.likes = updatedLikes;
+          video.likes = await this.incrementLikes(video.id);
         }
       } catch (error) {
         console.error("Error updating like status:", error);
@@ -168,7 +164,7 @@ export default {
         if (response.data.success) {
           const video = this.videos.find((v) => v.id === videoId);
           if (video) {
-            video.likes++;
+            video.likes=response.data.likes;
           }
         }
       } catch (error) {
@@ -186,7 +182,7 @@ export default {
         if (response.data.success) {
           const video = this.videos.find((v) => v.id === videoId);
           if (video) {
-            video.likes --;
+            video.likes= response.data.likes;
           }
         }
       } catch (error) {
