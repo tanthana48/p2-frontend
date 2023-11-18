@@ -136,24 +136,11 @@ export default {
     },
     handleNewNotification(data) {
       console.log("Received new notification:", data);
-      const receivedNotification = data.notification && data.notification[0];
-
-      if (receivedNotification) {
-        console.log("Notification message:", receivedNotification.message);
-
-        this.notifications.unshift(receivedNotification);
-
-        if (!receivedNotification.read) {
-          this.unreadNotificationsCount++;
-        }
-      } else {
-        console.error("Invalid notification structure:", data);
-      }
+      this.fetchNotifications();
     },
 
     handleConnect() {
       console.log("Socket connected");
-      this.fetchNotifications();
     },
     handleDisconnect() {
       console.log("Socket disconnected");
