@@ -102,6 +102,17 @@ export default {
       notifications: [],
     };
   },
+  watch: {
+    notifications(notifications) {
+      if (notifications.length > 0) {
+        this.unreadNotificationsCount = notifications.filter(
+          (n) => !n.read
+        ).length;
+      } else {
+        this.unreadNotificationsCount = 0;
+      }
+    },
+  },
   computed: {
     unreadNotificationsCount() {
       return Array.isArray(this.notifications)
