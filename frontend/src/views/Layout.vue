@@ -136,6 +136,10 @@ export default {
       if (receivedNotification) {
         console.log("Notification message:", receivedNotification.message);
         this.notifications.unshift(receivedNotification);
+
+        if (!receivedNotification.read) {
+          this.unreadNotificationsCount++;
+        }
       } else {
         console.error("Invalid notification structure:", data);
       }
