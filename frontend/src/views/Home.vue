@@ -82,6 +82,10 @@ export default {
     startPolling() {
       setInterval(() => {
         this.fetchVideos();
+        if (this.selectedVideo) {
+          this.fetchComments(this.selectedVideo.id);
+        }
+
       }, 10000);
     },
     async fetchVideos() {
@@ -137,10 +141,14 @@ export default {
       video.likes += video.isLikedByCurrentUser ? 1 : -1;
 
       try {
+        let updatedLikes;
         if (originalLikeStatus) {
-          await this.decrementLikes(video.id);
+          updatedLikes = await this.decrementLikes(video.id);
         } else {
-          await this.incrementLikes(video.id);
+          updatedLikes = await this.incrementLikes(video.id);
+        }
+        if (updatedLikes !== null) {
+          video.likes = updatedLikes;
         }
       } catch (error) {
         console.error("Error updating like status:", error);
@@ -160,8 +168,7 @@ export default {
         if (response.data.success) {
           const video = this.videos.find((v) => v.id === videoId);
           if (video) {
-            video.likes++;
-            //  = response.data.likes;
+            video.likes = response.data.likes;
           }
         }
       } catch (error) {
@@ -179,8 +186,7 @@ export default {
         if (response.data.success) {
           const video = this.videos.find((v) => v.id === videoId);
           if (video) {
-            video.likes --;
-            // = response.data.likes;
+            video.likes = response.data.likes;
           }
         }
       } catch (error) {
@@ -210,6 +216,7 @@ export default {
             text: this.newCommentText,
           });
           this.newCommentText = "";
+          this.fetchComments(videoId);
         }
       } catch (error) {
         console.error("Error posting comment:", error);
