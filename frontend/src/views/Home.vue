@@ -162,7 +162,7 @@ export default {
         if (response.data.success) {
           const video = this.videos.find((v) => v.id === videoId);
           if (video) {
-            video.likes=response.data.likes;
+            video.likes = response.data.likes;
           }
         }
       } catch (error) {
@@ -180,11 +180,7 @@ export default {
         if (response.data.success) {
           const video = this.videos.find((v) => v.id === videoId);
           if (video) {
-<<<<<<< HEAD
-            video.likes= response.data.likes;
-=======
-            video.likes--;
->>>>>>> 9d70c8d (fix notification)
+            video.likes = response.data.likes;
           }
         }
       } catch (error) {
