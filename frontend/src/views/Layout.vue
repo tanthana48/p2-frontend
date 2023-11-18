@@ -77,11 +77,7 @@
             :key="notification.id"
           >
             <v-list-item-content>
-              {{
-                notification && notification.message
-                  ? notification.message
-                  : "No message available"
-              }}
+              {{ notification }}
             </v-list-item-content>
           </v-list-item>
         </v-list>
@@ -124,7 +120,14 @@ export default {
     },
     handleNewNotification(data) {
       console.log("Received new notification:", data);
-      this.notifications = JSON.parse(JSON.stringify(data.notification[0]));
+      const receivedNotification = data.notification && data.notification[0];
+
+      if (receivedNotification) {
+        console.log("Notification message:", receivedNotification.message);
+        this.notifications.unshift(receivedNotification);
+      } else {
+        console.error("Invalid notification structure:", data);
+      }
     },
 
     handleConnect() {
