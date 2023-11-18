@@ -85,7 +85,6 @@ export default {
         if (this.selectedVideo) {
           this.fetchComments(this.selectedVideo.id);
         }
-
       }, 10000);
     },
     async fetchVideos() {
@@ -151,7 +150,6 @@ export default {
         video.isLikedByCurrentUser = originalLikeStatus;
         video.likes = originalLikes;
       }
-     
     },
     async incrementLikes(videoId) {
       try {
@@ -182,7 +180,11 @@ export default {
         if (response.data.success) {
           const video = this.videos.find((v) => v.id === videoId);
           if (video) {
+<<<<<<< HEAD
             video.likes= response.data.likes;
+=======
+            video.likes--;
+>>>>>>> 9d70c8d (fix notification)
           }
         }
       } catch (error) {

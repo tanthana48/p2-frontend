@@ -80,6 +80,7 @@
     </v-main>
   </v-app>
 </template>
+
 <script>
 import Vue from "vue";
 import { setupSocketListeners } from "@/services/socket.js";
@@ -88,20 +89,8 @@ export default {
   data() {
     return {
       notificationsDropdownOpen: false,
-      notificationsDialog: false,
       notifications: [],
     };
-  },
-  watch: {
-    notifications(notifications) {
-      if (notifications.length > 0) {
-        this.unreadNotificationsCount = notifications.filter(
-          (n) => !n.read
-        ).length;
-      } else {
-        this.unreadNotificationsCount = 0;
-      }
-    },
   },
   computed: {
     unreadNotificationsCount() {
@@ -123,12 +112,10 @@ export default {
       this.notificationsDropdownOpen = !this.notificationsDropdownOpen;
     },
     async fetchNotifications() {
-      console.log("User ID:", this.$store.state.id);
       const response = await Vue.axios.get(
         `/noti/notifications/${this.$store.state.id}`
       );
-      this.notifications = response.data;
-      console.log("Fetched Notifications:", this.notifications);
+      this.notifications = response.data.notifications;
     },
     async markNotificationAsRead(notificationId) {
       await Vue.axios.post(
@@ -180,7 +167,6 @@ export default {
   },
 };
 </script>
-
 <style>
 div.logo {
   font-size: 18px;
